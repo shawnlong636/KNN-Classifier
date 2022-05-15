@@ -9,7 +9,7 @@ class Validator(ABC):
     def __init__(self, classifier: classifier.Classifier, validation_data):
         self.classifier = classifier
         self.data = validation_data
-    def evaluate(self, classifier: classifier.Classifier):
+    def evaluate(self, classifier: classifier.Classifier, features: list[int]):
         pass
 
 class RandomValidator(Validator):
@@ -17,5 +17,5 @@ class RandomValidator(Validator):
         self.classifier = None
         self.data = None
         
-    def evaluate(self):
+    def evaluate(self, features: list[int]):
         return random.uniform(0.0, 100.0)

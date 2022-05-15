@@ -36,7 +36,7 @@ class CLI:
 
     def featureSelection(self):
         print("\nPlease enter the total number of features: ")
-        numFeatures = self.enterInteger()
+        num_features = self.enterInteger()
         print("\nPlease select a feature selction algorithm: ")
         print("\t(1) Forward Selection")
         print("\t(2) Backward Elimination")
@@ -45,7 +45,7 @@ class CLI:
         fetcher = fs.Fetcher()
         selection_alg = fetcher.get(fs.AlgorithmType(choice))
         rand_validator = validator.RandomValidator()
-        selection_alg.search(rand_validator)
+        selection_alg.search(validator = rand_validator, num_features = num_features)
 
 
     # HELPER METHODS

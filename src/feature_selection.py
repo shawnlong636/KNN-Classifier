@@ -7,7 +7,7 @@ class AlgorithmType(IntEnum):
     BackwardElimination = 2
 
 class SelectionAlgorithm(ABC):
-    def search(self, validator: validator.Validator):
+    def search(self, validator: validator.Validator, num_features: int):
         pass
 
 class Fetcher:
@@ -18,9 +18,9 @@ class Fetcher:
             return BackwardElimination()
 
 class ForwardElimination(SelectionAlgorithm):
-    def search(self, validator: validator.Validator) -> SelectionAlgorithm:
+    def search(self, validator: validator.Validator, num_features: int):
         print("Searching using Forward Elimination")
 
 class BackwardElimination(SelectionAlgorithm):
-    def search(self, validator: validator.Validator):
+    def search(self, validator,  num_features: int):
         print("Searching using Backward Elimination")
