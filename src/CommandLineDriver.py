@@ -5,17 +5,15 @@ from sys import stdin
 input = stdin.readline
 
 class CLI:
-    # CLI Attributes
+    # CLI ATTRIBUTES
     log = logging.getLogger(__name__)
 
-    # THE Main CLI Function
+    # MAIN METHOD FOR THE CLI
     def run(self):
         self.header()
         print("Welcome to KNN Clasifier!")
         
-
-
-    # Beginning of Helper Function
+    # HELPER METHODS
     def header(self):
         title = """     __  ,_ __  _ __      ,___ _                          
     ( /,/( /  )( /  )    /   ///             o  /)o       
