@@ -21,9 +21,8 @@ class CLI:
     ( /,/( /  )( /  )    /   ///             o  /)o       
      /<   /  /  /  /    /    // __,  (   (  ,  //,  _  _  
     /  \_/  (_ /  (_   (___/(/_(_/(_/_)_/_)_(_//_(_(/_/ (_
-    w/ Feature Selection and Validation      /)           
-                                            (/            
-    BY SHAWN LONG (SID: 862154223)
+       w/ Feature Selection & Validation     /)  by Shawn Long         
+                                            (/  SID: 862154223
         """
         print(title)
 
