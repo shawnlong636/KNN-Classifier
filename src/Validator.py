@@ -18,4 +18,6 @@ class RandomValidator(Validator):
         self.data = None
         
     def evaluate(self, features: list[int]):
-        return random.uniform(0.0, 100.0)
+        accuracy = random.uniform(0.0, 100.0)
+        print(f"Features: {features} -> Accuracy: {round(100.0 * accuracy) / 100.0 }%")
+        return accuracy
