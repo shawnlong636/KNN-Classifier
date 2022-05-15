@@ -17,11 +17,11 @@ class SelectionAlgorithm(ABC):
 class Fetcher:
     def get(self, algorithm: AlgorithmType) -> SelectionAlgorithm:
         if algorithm == AlgorithmType.ForwardSelection:
-            return ForwardElimination()
+            return ForwardSelection()
         elif algorithm == AlgorithmType.BackwardElimination:
             return BackwardElimination()
 
-class ForwardElimination(SelectionAlgorithm):
+class ForwardSelection(SelectionAlgorithm):
     def possible_choices(self, features: list[int], max_features: int):
 
         all_features = set([i for i in range(1,max_features + 1)])
@@ -31,7 +31,7 @@ class ForwardElimination(SelectionAlgorithm):
         return sorted(list(possible_features))
 
     def search(self, validator: validator.Validator, num_features: int):
-        print("\nSearching using Forward Elimination\n")
+        print("\nSearching using Forward Selection\n")
         best_feature_set = []
         best_accuracy = validator.evaluate(best_feature_set)
         all_children_worse = False
@@ -58,6 +58,7 @@ class ForwardElimination(SelectionAlgorithm):
             best_accuracy = current_best_accuracy
         
         print(f"\nBest Feature Set: {best_feature_set} -> Accuracy: {round(100.0 * best_accuracy) / 100.0}%\n")
+        return {"Features": best_feature_set, "Accuracy": best_accuracy}
 
 class BackwardElimination(SelectionAlgorithm):
     def search(self, validator: validator.Validator, num_features: int):
@@ -89,3 +90,4 @@ class BackwardElimination(SelectionAlgorithm):
             best_accuracy = current_best_accuracy
         
         print(f"\nBest Feature Set: {best_feature_set} -> Accuracy: {round(100.0 * best_accuracy) / 100.0}%\n")
+        return {"Features": best_feature_set, "Accuracy": best_accuracy}

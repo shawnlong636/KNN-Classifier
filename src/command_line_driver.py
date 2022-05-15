@@ -45,7 +45,7 @@ class CLI:
         fetcher = fs.Fetcher()
         selection_alg = fetcher.get(fs.AlgorithmType(choice))
         rand_validator = validator.RandomValidator()
-        selection_alg.search(validator = rand_validator, num_features = num_features)
+        result_dict = selection_alg.search(validator = rand_validator, num_features = num_features)
 
 
     # HELPER METHODS
