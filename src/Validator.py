@@ -1,12 +1,21 @@
 import logging
+import random
 from abc import ABC
-from src import Classifier
+from src import classifier
 
 log = logging.getLogger(__name__)
 
 class Validator(ABC):
-    def __init__(self, classifier: Classifier, validation_data):
+    def __init__(self, classifier: classifier.Classifier, validation_data):
         self.classifier = classifier
         self.data = validation_data
-    def evaluate(self):
+    def evaluate(self, classifier: classifier.Classifier):
         pass
+
+class RandomValidator(Validator):
+    def __init__(self):
+        self.classifier = None
+        self.data = None
+        
+    def evaluate(self):
+        return random.uniform(0.0, 100.0)

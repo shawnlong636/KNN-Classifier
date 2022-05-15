@@ -1,5 +1,7 @@
 import logging
 from sys import stdin
+from src import feature_selection as fs
+from src import validator
 
 # Global Function
 input = stdin.readline
@@ -11,7 +13,40 @@ class CLI:
     # MAIN METHOD FOR THE CLI
     def run(self):
         self.header()
-        print("Welcome to KNN Clasifier!")
+        print("\nWelcome to KNN Clasifier!")
+        print("Please select an option:")
+        print("\t(1) Feature Selection")
+        print("\t(2) Train A Model")
+        print("\t(3) Test a Model")
+        print("\t(4) Validate a Model")
+        
+        choice = self.selectOption(choices = [1,2,3,4])
+
+        if choice == 1:
+            self.featureSelection()
+        elif choice == 2:
+            print("This feature is still in progress!")
+        elif choice == 3:
+            print("This feature is still in progress!")
+        elif choice == 4:
+            print("This feature is still in progress!")
+
+
+    # MAIN FEATURE METHODS
+
+    def featureSelection(self):
+        print("\nPlease enter the total number of features: ")
+        numFeatures = self.enterInteger()
+        print("\nPlease select a feature selction algorithm: ")
+        print("\t(1) Forward Selection")
+        print("\t(2) Backward Elimination")
+        choice = self.selectOption(choices = [1, 2])
+
+        fetcher = fs.Fetcher()
+        selection_alg = fetcher.get(fs.AlgorithmType(choice))
+        rand_validator = validator.RandomValidator()
+        selection_alg.search(rand_validator)
+
 
     # HELPER METHODS
     def header(self):
@@ -23,6 +58,41 @@ class CLI:
                                             (/  SID: 862154223
         """
         print(title)
+
+    def enterInteger(self):
+        try:
+            val = int(input())
+        except:
+            inputIsInteger = False
+            
+            while not inputIsInteger:
+                try:
+                    inputIsInteger = True
+                    print("Invalid selction. Please enter an integer greater than zero: ")
+                    val = int(input())
+                except:
+                    inputIsInteger = False
+        return val
+
+
+    def selectOption(self, choices) -> int:
+        try:
+            val = int(input())
+            if not val in choices:
+                raise ValueError()
+        except:
+            val = -1
+            while not (val in choices):
+                print(f"Invalid selection. Please enter one the following; {choices}, or q to quit")
+                try:
+                    val = input()
+                    if str(val).strip() == "q":
+                        print("Exiting program")
+                        exit()
+                    val = int(val)
+                except Exception as e:
+                    self.log.debug(f"CAUGHT ERROR: {e}")
+        return val
 
 if __name__ == '__main__':
     cli = CLI()
