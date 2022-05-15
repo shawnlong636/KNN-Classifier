@@ -3,7 +3,7 @@ import sys
 import logging
 import test
 import collections
-from src import CommandLineDriver
+from src import command_line_driver
 
 def main():
     logging.basicConfig(stream=sys.stderr)
@@ -36,7 +36,7 @@ def printInvalidArgument(argument: str):
     print(f"Command {argument} not recognized. Please enter --test / -t to run tests and --continue / -c to continue program execution after tests")
 
 def executeCLI():
-    cli = CommandLineDriver.CLI()
+    cli = command_line_driver.CLI()
     cli.run()
 
 def executeUnitTests():

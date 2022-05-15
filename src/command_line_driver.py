@@ -12,7 +12,7 @@ class CLI:
     def run(self):
         self.header()
         print("Welcome to KNN Clasifier!")
-        
+
     # HELPER METHODS
     def header(self):
         title = """     __  ,_ __  _ __      ,___ _                          
