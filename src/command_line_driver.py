@@ -2,6 +2,7 @@ import logging
 from sys import stdin
 from src import feature_selection as fs
 from src import validator
+from src import classifier
 
 # Global Function
 input = stdin.readline
@@ -25,6 +26,7 @@ class CLI:
         if choice == 1:
             self.featureSelection()
         elif choice == 2:
+            my_classifier = classifier.NaiveKNNClassifier(3)
             print("This feature is still in progress!")
         elif choice == 3:
             print("This feature is still in progress!")

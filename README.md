@@ -41,3 +41,14 @@ or
 python main.py -t -c
 ```
 
+
+
+## References
+
+Below is a list of sources I uses as reference while developing this application:
+
+- [Zubair Khalid: Fast kNN - KD Tree](https://www.youtube.com/watch?v=lZs7VXdasnI)
+
+- [Computerphile: K-d Trees](https://www.youtube.com/watch?v=BK5x7IUTIyU)
+- [University of Colorado: K-D Trees aznd KNN Searches](https://www.colorado.edu/amath/sites/default/files/attached-files/k-d_trees_and_knn_searches.pdf)
+- [Virginia Tech: Acceleration Struture for Ray Tracing - K-D Tree Traversal](https://people.cs.vt.edu/yongcao/teaching/csx984/fall2010/documents/Lecture10_Acceleration_structure.pdf)
