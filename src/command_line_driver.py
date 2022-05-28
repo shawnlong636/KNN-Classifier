@@ -4,6 +4,7 @@ from src import feature_selection as fs
 from src import validator
 from src import classifier
 from src import data_fetcher
+from src.point import Point
 import os
 
 # Global Function
@@ -36,33 +37,35 @@ class CLI:
             print("\t(2) Select a Classifier")
 
             print("\n\t(3) Feature Selection")
-            print("\t(4) Train A Model")
-            print("\t(5) Test a Model")
-            print("\t(6) Validate a Model")
+            print("\t(4) Train a Model")
+            print("\t(5) Validate a Model")
+            
+            print("\n\t(6) Classify a Data Point")
 
             print("\n\t(9) Quit")
             
             menuChoice = self.selectOption(choices = [1, 2, 3, 4, 5, 6, 9])
 
-            if menuChoice == 1:
+            if menuChoice == 1: # (1) Select a Dataset
                 self.selectInputData()
 
-            elif menuChoice == 2:
+            elif menuChoice == 2: # (2) Select a Classifier
                 self.classifierSelection()
 
-            elif menuChoice == 3:
+            elif menuChoice == 3: # (3) Feature Selection
                 self.featureSelection()
 
-            elif menuChoice == 4:
-                my_classifier = classifier.NaiveKNNClassifier(3)
+            elif menuChoice == 4: # (4) Train a Model
+                self.classifier.train(self.data)
+                self.status_message = "Training Successful!"
 
-            elif menuChoice == 5:
-                print("This feature is still in progress!")
+            elif menuChoice == 5: # (5) Validate a Model
+                print("This feature is still in progress")
 
-            elif menuChoice == 6:
-                print("This feature is still in progress!")
+            elif menuChoice == 6: # (6) Classify a Data Point
+                self.testNewPoint()
 
-            elif menuChoice == 9:
+            elif menuChoice == 9: # (9) Quit
                 exit()
 
     # MAIN FEATURE METHODS
@@ -89,21 +92,49 @@ class CLI:
 
     def featureSelection(self):
         self.header()
+
+        if not self.classifier.isTrained:
+            print("\nModel must be trained first! Would you like to train using default dataset?")
+            print("\t(1) Yes")
+            print("\t(2) No")
+
+            defaultTrainingChoice = self.selectOption(choices = [1, 2])
+            
+            if defaultTrainingChoice == 1:
+                self.classifier.train(self.data)
+
+            elif defaultTrainingChoice == 2:
+                return
         
-        print("\nPlease enter the total number of features: ")
-        num_features = self.enterInteger()
+        num_features = len(self.data[0].features)
+
+        if num_features == -1:
+            return
 
         self.header()
         print("\nPlease select a feature selction algorithm: ")
         print("\t(1) Forward Selection")
         print("\t(2) Backward Elimination")
-        choice = self.selectOption(choices = [1, 2])
+        feat_sel_alg_choice = self.selectOption(choices = [1, 2])
+
+        self.header()
+        print("\nPlease select a validation algorithm:")
+        print("\t(1) Random Validator")
+        print("\t(2) Leave-One-Out Validator")
+
+        validator_alg_choice = self.selectOption(choices = [1, 2])
+
+        model_validator = None
+        if validator_alg_choice == 1:
+            model_validator = validator.RandomValidator()     
+        elif validator_alg_choice == 2:
+            model_validator = validator.LeaveOneOutValidator(classifier = self.classifier, validation_data = self.data)
 
         self.header()
         fetcher = fs.Fetcher()
-        selection_alg = fetcher.get(fs.AlgorithmType(choice))
-        rand_validator = validator.RandomValidator()
-        result_dict = selection_alg.search(validator = rand_validator, num_features = num_features)
+        selection_alg = fetcher.get(fs.AlgorithmType(feat_sel_alg_choice))
+        result_dict = selection_alg.search(validator = model_validator, num_features = num_features)
+        
         print("Press Enter to continue: ")
         _ = input()
 
@@ -123,6 +154,44 @@ class CLI:
             self.classifier = classifier.NaiveKNNClassifier(k)
         
         self.status_message = "Classifier Updated!"
+    
+    def testNewPoint(self):
+        self.header()
+
+        if not self.classifier.isTrained:
+            print("\nModel must be trained first! Would you like to train using default dataset?")
+            print("\t(1) Yes")
+            print("\t(2) No")
+
+            defaultTrainingChoice = self.selectOption(choices = [1, 2])
+            
+            if defaultTrainingChoice == 1:
+                self.classifier.train(self.data)
+
+            elif defaultTrainingChoice == 2:
+                return
+        
+
+        self.header()
+        feature_dimmensions = len(self.data[0].features)
+        print(f"\nCurrent Feature Space Dimmension: {feature_dimmensions}")
+        print("\nPlease enter features separated by space: ")
+
+        try:
+            features = self.enterFloats(num_vals = feature_dimmensions)
+            if len(features) == 0:
+                self.status_message = "Unable to Classify Point: Cancelled by User"
+                return
+            test_point = Point(label = None, features = features)
+            test_point = self.classifier.test(test_point)
+            print(f"\nClassification is {test_point.label}")
+        except Exception as error:
+            print(f"error: {error}")
+
+        print("\nPress Enter to continue: ")
+        _ = input()
+
+
 
     # HELPER METHODS
     def header(self):
@@ -142,20 +211,63 @@ class CLI:
         print(title)
 
     def enterInteger(self):
+        cancelledByUser = False
         try:
-            val = int(input())
-        except:
-            inputIsInteger = False
-            
-            while not inputIsInteger:
-                try:
-                    inputIsInteger = True
-                    print("Invalid selction. Please enter an integer greater than zero: ")
-                    val = int(input())
-                except:
-                    inputIsInteger = False
-        return val
+            input_str = input().strip()
 
+            val = int(input_str)
+        except:
+            isInteger = False
+
+            while not isInteger and not cancelledByUser:
+                try:
+                    isInteger = True
+                    print(f"Invalid selection. Please enter an integer greater than zero or q to return to main menu:")
+                    input_str = input().strip()
+
+                    if input_str == "q":
+                        cancelledByUser = True
+                        break
+                    val = int(input_str)
+                except:
+                    isInteger = False
+        if cancelledByUser:
+            return -1
+        else:
+            return val
+
+    def enterFloats(self, num_vals):
+        try:
+            input_str = input().strip()
+            cancelledByUser = False
+
+            vals = [float(val) for val in input_str.split(" ") if not val == ""]
+            if not len(vals) == num_vals:
+                raise ValueError(f"Must enter {num_vals} values")
+        except:
+            valsAreFloats = False
+
+            iterations = 1
+            while not valsAreFloats and not cancelledByUser:
+                try:
+                    valsAreFloats = True
+                    print(f"Invalid selection. Please enter list of {num_vals} floats separated by spaces or q to return to main menu:")
+                    input_str = input().strip()
+
+                    if input_str == "q":
+                        cancelledByUser = True
+                        break
+                    vals = [float(val) for val in input_str.split(" ") if not val == ""]
+                    if not len(vals) == num_vals:
+                        raise ValueError(f"Must enter {num_vals} values")
+                    iterations += 1
+                except:
+                    valsAreFloats = False
+                    iterations += 1
+        if cancelledByUser:
+            return []
+        else:
+            return vals
 
     def selectOption(self, choices) -> int:
         try:
@@ -165,7 +277,7 @@ class CLI:
         except:
             val = -1
             while not (val in choices):
-                print(f"Invalid selection. Please enter one the following; {choices}, or q to quit")
+                print(f"Invalid selection. Please enter one the following; {choices}, or q to return to main menu")
                 try:
                     val = input()
                     if str(val).strip() == "q":

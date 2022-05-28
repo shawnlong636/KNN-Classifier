@@ -33,7 +33,12 @@ class ForwardSelection(SelectionAlgorithm):
     def search(self, validator: validator.Validator, num_features: int):
         print("\nSearching using Forward Selection\n")
         best_feature_set = []
-        best_accuracy = validator.evaluate(best_feature_set)
+        best_accuracy = 0.00
+        try:
+            best_accuracy = validator.evaluate(best_feature_set)
+        except Exception as error:
+            print(f"Unable to complete feature search: {error}")
+            return
         all_children_worse = False
 
         while not all_children_worse:
@@ -44,10 +49,15 @@ class ForwardSelection(SelectionAlgorithm):
 
 
             choices = self.possible_choices(best_feature_set, max_features = num_features)
+            # print(choices)
             for choice in choices:
-                child_accuracy = validator.evaluate(best_feature_set + [choice])
-
-                if child_accuracy > best_accuracy:
+                child_accuracy = 0.00
+                try:
+                    child_accuracy = validator.evaluate(best_feature_set + [choice])
+                except Exception as error:
+                    print(f"Unable to complete feature search: {error}")
+                    return
+                if child_accuracy > current_best_accuracy:
                     current_best_accuracy = child_accuracy
                     current_best_features = best_feature_set + [choice]
                     all_children_worse = False
@@ -64,7 +74,11 @@ class BackwardElimination(SelectionAlgorithm):
     def search(self, validator: validator.Validator, num_features: int):
         print("\nSearching using Backward Elimination\n")
         best_feature_set = [feature for feature in range(1, num_features + 1)]
-        best_accuracy = validator.evaluate(best_feature_set)
+        best_accuracy = 0.0
+        try:
+            best_accuracy = validator.evaluate(best_feature_set)
+        except Exception as error:
+            print(f"Unable to complete feature search: {error}")
         all_children_worse = False
 
         while not all_children_worse:
@@ -77,7 +91,11 @@ class BackwardElimination(SelectionAlgorithm):
 
             for feature in best_feature_set:
                 child_features = sorted(list(feature_set.difference(set([feature]))))
-                child_accuracy = validator.evaluate(child_features)
+                child_accuracy = None
+                try:
+                    child_accuracy = validator.evaluate(child_features)
+                except Exception as error:
+                    print(f"Unable to complete feature search: {error}")
 
                 if child_accuracy > best_accuracy:
                     current_best_accuracy = child_accuracy

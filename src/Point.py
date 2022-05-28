@@ -12,3 +12,6 @@ class Point:
         return f"{self.label}: {tuple(self.features)}"
     def __repr__(self):
         return f"{self.label}: {tuple(self.features)}"
+    def __lt__(self, other):
+        # Arbitrary point comparison necessary for queue
+        return True
