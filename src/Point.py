@@ -8,3 +8,7 @@ class Point:
         self.id = uuid.uuid1()
         self.label = label
         self.features = features
+    def __str__(self):
+        return f"{self.label}: {tuple(self.features)}"
+    def __repr__(self):
+        return f"{self.label}: {tuple(self.features)}"

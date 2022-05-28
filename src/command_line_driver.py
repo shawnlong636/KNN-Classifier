@@ -3,6 +3,7 @@ from sys import stdin
 from src import feature_selection as fs
 from src import validator
 from src import classifier
+from src import data_fetcher
 
 # Global Function
 input = stdin.readline
@@ -21,16 +22,27 @@ class CLI:
         print("\t(3) Test a Model")
         print("\t(4) Validate a Model")
         
-        choice = self.selectOption(choices = [1,2,3,4])
+        menuChoice = self.selectOption(choices = [1, 2, 3, 4])
 
-        if choice == 1:
+        print("\nWould you like to use a custom dataset?")
+        print("\t(1) Yes")
+        print("\t(2) No")
+
+        customDataChoice = self.selectOption(choices = [1, 2])
+
+        if customDataChoice == 1:
+            self.selectInputData()
+        elif customDataChoice == 2:
+            print("Using default data set")    
+
+        if menuChoice == 1:
             self.featureSelection()
-        elif choice == 2:
+        elif menuChoice == 2:
             my_classifier = classifier.NaiveKNNClassifier(3)
             print("This feature is still in progress!")
-        elif choice == 3:
+        elif menuChoice == 3:
             print("This feature is still in progress!")
-        elif choice == 4:
+        elif menuChoice == 4:
             print("This feature is still in progress!")
 
 
@@ -95,6 +107,24 @@ class CLI:
                 except Exception as e:
                     self.log.debug(f"CAUGHT ERROR: {e}")
         return val
+
+    def selectInputData(self):
+        print("\nTo import a custom dataset, please follow the instructions in the readme.")
+
+        fetcher = data_fetcher.Fetcher()
+        available_datasets = fetcher.available_datasets()
+
+        if len(available_datasets) == 0:
+            print("No datasets found. Please double check your file/formatting.")
+            print("Quitting Application.")
+        else:
+            print(f"\nFound {len(available_datasets)} datasets! Please select one of the following:")
+            for (index, dataset) in enumerate(available_datasets):
+                print(f"\t({index + 1}) {dataset}")
+
+        option = self.selectOption(choices = list(range(1, len(available_datasets) + 1)))
+        dataset = available_datasets[option - 1]
+        return fetcher.load_dataset(dataset)
 
 if __name__ == '__main__':
     cli = CLI()
