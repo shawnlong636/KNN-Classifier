@@ -43,6 +43,19 @@ python main.py -t -c
 
 
 
+## Importing Custom Datasets
+
+To import a custom dataset, simply copy your dataset into the `Datasets` folder. Please see the below guidelines for formatting your dataset so it can be read into the application.
+
+- File extension should be `.txt`
+- Do not include a header row
+- Use 1 or 2 spaces as the delimiter for the file
+- The first column should be a `float` value representing the class of a data point
+- The remaining columns should be the features for that column
+  - **Null features are not supported**
+
+
+
 ## References
 
 Below is a list of sources I uses as reference while developing this application:
