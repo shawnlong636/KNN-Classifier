@@ -6,7 +6,7 @@ class Fetcher:
         self.path = "./Datasets/"
 
     def available_datasets(self):
-        try: 
+        try:
             files = [file for file in os.listdir(self.path)
                 if file.endswith(".txt")]
             return files
@@ -41,3 +41,30 @@ class Fetcher:
         except Exception as error:
             print(f"Unable to read file: {error}")
 
+    def normalize(data: list[Point]):
+        # O(nd), n: data_size (# of pnts), d: feature_dimm
+
+        if len(data) == 0 or len(data[0]) == 0:
+            return data
+
+        norm = lambda x, min_x, max_x: ( (x - min_x) / (max_x - min_x) ) * 100.0
+        normalized_data = data.copy()
+        feature_dimm = len(data[0])
+
+        # O(d)
+        for feature_idx in range(feature_dimm):
+            feature_min = float("-inf")
+            feature_max = float("inf")
+
+            # O(n)
+            for point in data:
+                if point.features[feature_idx] < feature_min:
+                    feature_min = point.features[feature_idx]
+                if point.features[feature_idx] > feature_max:
+                    feature_max = point.features[feature_idx]
+
+            # O(n)
+            for point_idx in range(len(data)):
+                normalized_data[point_idx].features[feature_idx] = norm(data[point_idx].features[feature_idx], feature_min, feature_max)
+        
+        return normalized_data
