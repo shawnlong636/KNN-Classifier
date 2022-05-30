@@ -1,5 +1,6 @@
 import logging
 import random
+from collections import Counter
 from abc import ABC
 from src import classifier
 from src.point import Point
@@ -28,6 +29,14 @@ class LeaveOneOutValidator(Validator):
         self.classifier = classifier
         self.validation_data = validation_data
 
+    def get_default_rate(self):
+        classes = list(map(lambda point: point.label, self.validation_data))
+        counter = Counter(classes)
+
+        _ , cnt_most_common = counter.most_common(1)[0]
+        point_count = len(classes)
+        return (float(cnt_most_common) / float(point_count)) * 100.00
+
     def evaluate(self, features: list[int]):
         point_count = len(self.validation_data)
         accuracy_sum = 0.0
@@ -35,15 +44,15 @@ class LeaveOneOutValidator(Validator):
         self.classifier.setFeatures(features)
 
         if len(features) == 0:
-            return 0.0
+            return self.get_default_rate()
 
         if point_count <= 1:
             raise Exception("More than 1 point required to determine accuracy of classifier")
 
-        for exclude_index in range(point_count):
+        for exclude_index in range(point_count): # O(n)
             correct_count = 0
 
-            for include_index in range(point_count):
+            for include_index in range(point_count): # O(n)
                 if not include_index == exclude_index:
                     actual_point = self.validation_data[include_index]
                     classified_point = self.classifier.test(Point(label=None, features=actual_point.features))

@@ -76,17 +76,17 @@ class NaiveKNNClassifier(Classifier):
         #     n: number of points in training_data
 
         # Convert point to tuple of (distance_to_test_point, point)
-        testing_data = [point for point in self.training_data if not point.features == test_point.features]
+        testing_data = [point for point in self.training_data if not point.features == test_point.features] # O(dn)
         distance_mapper = lambda point: (self.distance(point, test_point), point)
         
-        queue = list(map(distance_mapper, testing_data))
-        heapq.heapify(queue)
+        queue = list(map(distance_mapper, testing_data)) # O(dn)
+        heapq.heapify(queue) # O(n)
 
         # Create array of the classes of the top k elements from the queue
-        k_nearest = list(map(lambda point: point.label, [heapq.heappop(queue)[1] for _ in range(self.k)]))
+        k_nearest = list(map(lambda point: point.label, [heapq.heappop(queue)[1] for _ in range(self.k)])) #O(k * log(n))
         
         # Use Counter to get most_common class
-        classification = Counter(k_nearest).most_common(1)[0][0]
+        classification = Counter(k_nearest).most_common(1)[0][0] # O(k)
 
         # Return Modified Point with Updated Classifification
         return Point(label = classification, features = test_point.features)

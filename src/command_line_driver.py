@@ -18,6 +18,7 @@ class CLI:
         # Default Values for Data and Classifiers
         self.data_file = "small-test-dataset.txt"
         self.data = self.fetcher.load_dataset(self.data_file)
+        # self.data = self.fetcher.normalize(self.data) # Uncomment to enable normalization by default
         self.classifier = classifier.NaiveKNNClassifier(k=1)
 
         self.status_message = "Welcome to KNN Clasifier!"
@@ -35,12 +36,13 @@ class CLI:
             print("\nPlease select an option:")
             print("\n\t(1) Select a Dataset")
             print("\t(2) Select a Classifier")
+            print("\t(3) Normalize Dataset")
 
-            print("\n\t(3) Feature Selection")
-            print("\t(4) Train a Model")
-            print("\t(5) Validate a Model")
+            print("\n\t(4) Feature Selection")
+            print("\t(5) Train a Model")
+            print("\t(6) Validate a Model")
             
-            print("\n\t(6) Classify a Data Point")
+            print("\n\t(7) Classify a Data Point")
 
             print("\n\t(9) Quit")
             
@@ -51,18 +53,21 @@ class CLI:
 
             elif menuChoice == 2: # (2) Select a Classifier
                 self.classifierSelection()
+            elif menuChoice == 3: # (3) Normalize Dataset
+                self.fetcher.normalize(self.data)
+                self.status_message = "Data sucessfully Normalized"
 
-            elif menuChoice == 3: # (3) Feature Selection
+            elif menuChoice == 4: # (4) Feature Selection
                 self.featureSelection()
 
-            elif menuChoice == 4: # (4) Train a Model
+            elif menuChoice == 5: # (5) Train a Model
                 self.classifier.train(self.data)
                 self.status_message = "Training Successful!"
 
-            elif menuChoice == 5: # (5) Validate a Model
+            elif menuChoice == 6: # (6) Validate a Model
                 print("This feature is still in progress")
 
-            elif menuChoice == 6: # (6) Classify a Data Point
+            elif menuChoice == 7: # (7) Classify a Data Point
                 self.testNewPoint()
 
             elif menuChoice == 9: # (9) Quit
