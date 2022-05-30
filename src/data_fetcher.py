@@ -18,7 +18,7 @@ class Fetcher:
 
     def load_dataset(self, file_name):
         file_path = self.path + file_name
-        points: list[Point] = []
+        points = []
         try:
             with open(file_path, "r") as file:
                 line = file.readline()
@@ -42,7 +42,7 @@ class Fetcher:
         except Exception as error:
             print(f"Unable to read file: {error}")
 
-    def normalize(self, data: list[Point]):
+    def normalize(self, data):
         # O(nd), n: data_size (# of pnts), d: feature_dimm
 
         if len(data) == 0 or len(data[0].features) == 0:

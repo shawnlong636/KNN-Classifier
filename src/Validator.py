@@ -1,5 +1,6 @@
 import logging
 import random
+from tqdm import tqdm
 from collections import Counter
 from abc import ABC
 from src import classifier
@@ -11,7 +12,7 @@ class Validator(ABC):
     def __init__(self, classifier: classifier.Classifier, validation_data):
         self.classifier = classifier
         self.data = validation_data
-    def evaluate(self, classifier: classifier.Classifier, features: list[int]):
+    def evaluate(self, classifier: classifier.Classifier, features):
         pass
 
 class RandomValidator(Validator):
@@ -19,9 +20,9 @@ class RandomValidator(Validator):
         self.classifier = None
         self.data = None
         
-    def evaluate(self, features: list[int]):
+    def evaluate(self, features):
         accuracy = random.uniform(0.0, 100.0)
-        print(f"Features: {features} -> Accuracy: {round(100.0 * accuracy) / 100.0 }%")
+        # print(f"Features: {features} -> Accuracy: {round(100.0 * accuracy) / 100.0 }%")
         return accuracy
 
 class LeaveOneOutValidator(Validator):
@@ -37,7 +38,15 @@ class LeaveOneOutValidator(Validator):
         point_count = len(classes)
         return (float(cnt_most_common) / float(point_count)) * 100.00
 
-    def evaluate(self, features: list[int]):
+    def evaluate(self, features):
+        # Time Complexity: 
+        # - For each point: O(n)
+        #   - Exclude the point, and for all other points # O(n)
+        #       - # Test the other point and record result: O(dn + klogn)
+        # - Calculate the avg: O(1)
+        #
+        # Total time complexity: O(dn^3 + kn^2 * log(n))
+
         point_count = len(self.validation_data)
         accuracy_sum = 0.0
         test_count = 0
@@ -49,13 +58,13 @@ class LeaveOneOutValidator(Validator):
         if point_count <= 1:
             raise Exception("More than 1 point required to determine accuracy of classifier")
 
-        for exclude_index in range(point_count): # O(n)
+        for exclude_index in tqdm(range(point_count), leave=False, colour="#FABE0E", desc="Testing Model"): # O(n)
             correct_count = 0
 
             for include_index in range(point_count): # O(n)
                 if not include_index == exclude_index:
                     actual_point = self.validation_data[include_index]
-                    classified_point = self.classifier.test(Point(label=None, features=actual_point.features))
+                    classified_point = self.classifier.test(Point(label=None, features=actual_point.features)) # O(dn + klogn)
 
                     if int(actual_point.label) == int(classified_point.label):
                         correct_count += 1
@@ -68,5 +77,5 @@ class LeaveOneOutValidator(Validator):
             raise Exception("Unable to Calculate Accuracy due to having zero valid tests")
         
         total_accuracy = accuracy_sum / float(test_count)
-        print(f"Features: {features} -> Accuracy: {round(100.0 * total_accuracy) / 100.0 }%")
+        # print(f"Features: {features} -> Accuracy: {round(100.0 * total_accuracy) / 100.0 }%")
         return total_accuracy

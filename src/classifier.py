@@ -31,7 +31,7 @@ class Classifier(ABC):
     
         return dist_squared
 
-    def train(self, training_data: list[Point]):
+    def train(self, training_data: list):
         pass
     def test(self, point: Point) -> float:
         pass
@@ -43,7 +43,7 @@ class NaiveKNNClassifier(Classifier):
         self.isTrained = False
         self.features = []
 
-    def setFeatures(self, features: list[Point]):
+    def setFeatures(self, features):
         if self.training_data == None:
             raise Exception("Classifier must be trained before setting the features")
         
@@ -55,7 +55,7 @@ class NaiveKNNClassifier(Classifier):
 
         self.features = features
         
-    def train(self, training_data: list[Point]):
+    def train(self, training_data):
         self.training_data = training_data
         self.features = list(range(1, len(self.training_data[0].features) + 1))
         self.isTrained = True
@@ -77,7 +77,7 @@ class NaiveKNNClassifier(Classifier):
 
         # Convert point to tuple of (distance_to_test_point, point)
         testing_data = [point for point in self.training_data if not point.features == test_point.features] # O(dn)
-        distance_mapper = lambda point: (self.distance(point, test_point), point)
+        distance_mapper = lambda point: (self.distanceSquared(point, test_point), point)
         
         queue = list(map(distance_mapper, testing_data)) # O(dn)
         heapq.heapify(queue) # O(n)

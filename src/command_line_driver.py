@@ -65,7 +65,7 @@ class CLI:
                 self.status_message = "Training Successful!"
 
             elif menuChoice == 6: # (6) Validate a Model
-                print("This feature is still in progress")
+                self.validateModel()
 
             elif menuChoice == 7: # (7) Classify a Data Point
                 self.testNewPoint()
@@ -93,23 +93,12 @@ class CLI:
         option = self.selectOption(choices = list(range(1, len(available_datasets) + 1)))
         self.data_file = available_datasets[option - 1]
         self.data = self.fetcher.load_dataset(self.data_file)
+        self.classifier.isTrained = False
         self.status_message = "Sucessfully Loaded data!"
 
     def featureSelection(self):
-        self.header()
-
-        if not self.classifier.isTrained:
-            print("\nModel must be trained first! Would you like to train using default dataset?")
-            print("\t(1) Yes")
-            print("\t(2) No")
-
-            defaultTrainingChoice = self.selectOption(choices = [1, 2])
-            
-            if defaultTrainingChoice == 1:
-                self.classifier.train(self.data)
-
-            elif defaultTrainingChoice == 2:
-                return
+        if not self.checkModelIsTrained():
+            return
         
         num_features = len(self.data[0].features)
 
@@ -122,18 +111,7 @@ class CLI:
         print("\t(2) Backward Elimination")
         feat_sel_alg_choice = self.selectOption(choices = [1, 2])
 
-        self.header()
-        print("\nPlease select a validation algorithm:")
-        print("\t(1) Random Validator")
-        print("\t(2) Leave-One-Out Validator")
-
-        validator_alg_choice = self.selectOption(choices = [1, 2])
-
-        model_validator = None
-        if validator_alg_choice == 1:
-            model_validator = validator.RandomValidator()     
-        elif validator_alg_choice == 2:
-            model_validator = validator.LeaveOneOutValidator(classifier = self.classifier, validation_data = self.data)
+        model_validator = self.getValidator()
 
         self.header()
         fetcher = fs.Fetcher()
@@ -161,21 +139,8 @@ class CLI:
         self.status_message = "Classifier Updated!"
     
     def testNewPoint(self):
-        self.header()
-
-        if not self.classifier.isTrained:
-            print("\nModel must be trained first! Would you like to train using default dataset?")
-            print("\t(1) Yes")
-            print("\t(2) No")
-
-            defaultTrainingChoice = self.selectOption(choices = [1, 2])
-            
-            if defaultTrainingChoice == 1:
-                self.classifier.train(self.data)
-
-            elif defaultTrainingChoice == 2:
-                return
-        
+        if not self.checkModelIsTrained():
+            return
 
         self.header()
         feature_dimmensions = len(self.data[0].features)
@@ -196,6 +161,62 @@ class CLI:
         print("\nPress Enter to continue: ")
         _ = input()
 
+    def validateModel(self):
+        if not self.checkModelIsTrained():
+            return
+
+        self.header()
+        available_features = [idx + 1 for idx in range(len(self.data[0].features))]
+
+        print("\nWhich features would you like to test?")
+        print(f"Available Features: {available_features}")
+        print("Please enter features separated by spaces or press enter to use all of them.")
+        chosen_features = self.enterFeatures(available_features)
+
+        if chosen_features == None:
+            return
+        
+        model_validator = self.getValidator()
+        accuracy = model_validator.evaluate(chosen_features)
+
+        print(f"Accuracy using features {chosen_features} is  {round(100.0 * accuracy) / 100.0 }%")
+
+        print("\nPress Enter to continue: ")
+        _ = input()
+    
+    def getValidator(self) -> validator.Validator:
+        self.header()
+        print("\nPlease select a validation algorithm:")
+        print("\t(1) Random Validator")
+        print("\t(2) Leave-One-Out Validator")
+
+        validator_alg_choice = self.selectOption(choices = [1, 2])
+
+        model_validator = None
+        if validator_alg_choice == 1:
+            model_validator = validator.RandomValidator()     
+        elif validator_alg_choice == 2:
+            model_validator = validator.LeaveOneOutValidator(classifier = self.classifier, validation_data = self.data)
+        
+        return model_validator
+    
+    def checkModelIsTrained(self):
+        self.header()
+
+        if not self.classifier.isTrained:
+            print(f"\nModel must be trained first! Would you like to train using dataset: {self.data_file}?")
+            print("\t(1) Yes")
+            print("\t(2) No")
+
+            defaultTrainingChoice = self.selectOption(choices = [1, 2])
+            
+            if defaultTrainingChoice == 1:
+                self.classifier.train(self.data)
+
+            elif defaultTrainingChoice == 2:
+                return False
+        
+        return True
 
 
     # HELPER METHODS
@@ -240,6 +261,51 @@ class CLI:
             return -1
         else:
             return val
+
+    def enterFeatures(self, available_features):
+        try:
+            feature_set = set(available_features)
+            cancelledByUser = False
+            input_str = input().strip()
+
+            vals = None
+            if input_str == "":
+                vals = available_features
+            else:
+                vals = list(set([int(val) for val in input_str.split(" ") if not val == ""]))
+            
+            if not set(vals).issubset(feature_set):
+                vals = None
+                raise Exception("Must enter a subset of the available features")
+
+        except:
+            valuesAreValid = False
+
+            iterations = 1
+            while not valuesAreValid and not cancelledByUser:
+                try:
+                    valuesAreValid = True
+                    print(f"Invalid selection. Please enter list of features separated by spaces, enter to include all available features, or q to return to main menu:")
+                    input_str = input().strip()
+
+                    if input_str == "q":
+                        cancelledByUser = True
+                        break
+                    elif input_str == "":
+                        vals = available_features
+                    else:
+                        vals = list(set([int(val) for val in input_str.split(" ") if not val == ""]))
+                    if not set(vals).issubset(available_features):
+                        vals = None
+                        raise Exception("Must enter a subset of the available features")
+                    iterations += 1
+                except:
+                    valuesAreValid = False
+                    iterations += 1
+        if cancelledByUser:
+            return None
+        else:
+            return vals
 
     def enterFloats(self, num_vals):
         try:
