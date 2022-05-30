@@ -76,19 +76,30 @@ class NaiveKNNClassifier(Classifier):
         #     n: number of points in training_data
 
         # Convert point to tuple of (distance_to_test_point, point)
-        testing_data = [point for point in self.training_data if not point.features == test_point.features] # O(dn)
-        distance_mapper = lambda point: (self.distanceSquared(point, test_point), point)
-        
-        queue = list(map(distance_mapper, testing_data)) # O(dn)
-        heapq.heapify(queue) # O(n)
 
-        # Create array of the classes of the top k elements from the queue
-        k_nearest = list(map(lambda point: point.label, [heapq.heappop(queue)[1] for _ in range(self.k)])) #O(k * log(n))
-        
-        # Use Counter to get most_common class
-        classification = Counter(k_nearest).most_common(1)[0][0] # O(k)
+        if self.k == 1:
+            best_distance = float("inf")
+            best_label = None
+            for point in self.training_data: # O(n)
+                if not point.features == test_point.features: # O(d)
+                    dist_to_point = self.distanceSquared(test_point, point) # O(d)
+                    if dist_to_point < best_distance:
+                        best_distance = dist_to_point
+                        best_label = point.label
+            return Point(label = best_label, features = test_point.features)
 
-        # Return Modified Point with Updated Classifification
-        return Point(label = classification, features = test_point.features)
+        else:
+            testing_data = [point for point in self.training_data if not point.features == test_point.features] # O(dn)
+            distance_mapper = lambda point: (self.distanceSquared(point, test_point), point)
+            
+            queue = list(map(distance_mapper, testing_data)) # O(dn)
+            heapq.heapify(queue) # O(n)
 
-        
+            # Create array of the classes of the top k elements from the queue
+            k_nearest = list(map(lambda point: point.label, [heapq.heappop(queue)[1] for _ in range(self.k)])) #O(k * log(n))
+            
+            # Use Counter to get most_common class
+            classification = Counter(k_nearest).most_common(1)[0][0] # O(k)
+
+            # Return Modified Point with Updated Classifification
+            return Point(label = classification, features = test_point.features)
