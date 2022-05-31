@@ -65,7 +65,7 @@ class ForwardSelection(SelectionAlgorithm):
                     if display_text:
                         print(f"Unable to complete feature search: {error}")
                     return
-                if child_accuracy > current_best_accuracy:
+                if child_accuracy >= current_best_accuracy:
                     current_best_accuracy = child_accuracy
                     current_best_features = best_feature_set + [choice]
                     all_children_worse = False
@@ -114,7 +114,7 @@ class BackwardElimination(SelectionAlgorithm):
                     if display_text:
                         print(f"Unable to complete feature search: {error}")
 
-                if child_accuracy > current_best_accuracy:
+                if child_accuracy >= current_best_accuracy:
                     current_best_accuracy = child_accuracy
                     current_best_features = child_features
                     all_children_worse = False
