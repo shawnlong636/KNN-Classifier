@@ -55,12 +55,15 @@ class NaiveKNNClassifier(Classifier):
 
         self.features = features
         
-    def train(self, training_data):
+    def train(self, training_data, features = None):
         self.training_data = training_data
-        self.features = list(range(1, len(self.training_data[0].features) + 1))
+        if features == None:
+            self.features = list(range(1, len(self.training_data[0].features) + 1))
+        else:
+            self.features = features
         self.isTrained = True
 
-    def test(self, test_point: Point) -> float:
+    def test(self, test_point: Point) -> Point:
         if self.training_data == None:
             raise Exception("Model must be trained before testing")
         
@@ -94,7 +97,7 @@ class NaiveKNNClassifier(Classifier):
             
             queue = list(map(distance_mapper, testing_data)) # O(dn)
             heapq.heapify(queue) # O(n)
-
+            
             # Create array of the classes of the top k elements from the queue
             k_nearest = list(map(lambda point: point.label, [heapq.heappop(queue)[1] for _ in range(self.k)])) #O(k * log(n))
             

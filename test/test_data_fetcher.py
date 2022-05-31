@@ -1,4 +1,3 @@
-from turtle import pos
 import unittest
 import logging
 import random
@@ -60,7 +59,7 @@ class TestForwardSelection(unittest.TestCase):
 
     def test_data_normalization(self):
         fetcher = data_fetcher.Fetcher()
-        data = fetcher.load_dataset("small-test-dataset.txt")
+        data = fetcher.load_dataset("small-test-dataset.txt",display_text=False)
         data = fetcher.normalize(data)
         for point in data:
             for feature in point.features:

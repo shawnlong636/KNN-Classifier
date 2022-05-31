@@ -13,7 +13,7 @@ class TestForwardSelection(unittest.TestCase):
             num_features = random.randint(1, 30)
             selection_alg = feature_selection.ForwardSelection()
             random_validator = validator.RandomValidator()
-            result_dict = selection_alg.search(validator=random_validator, num_features=num_features)
+            result_dict = selection_alg.search(validator=random_validator, num_features=num_features, display_text = False)
             
             self.assertGreaterEqual(result_dict["Accuracy"], 0.0)
             self.assertLessEqual(result_dict["Accuracy"], 100.0)
@@ -25,7 +25,7 @@ class TestBackwardElimination(unittest.TestCase):
             num_features = random.randint(1, 30)
             selection_alg = feature_selection.BackwardElimination()
             random_validator = validator.RandomValidator()
-            result_dict = selection_alg.search(validator=random_validator, num_features=num_features)
+            result_dict = selection_alg.search(validator=random_validator, num_features=num_features, display_text=False)
             
             self.assertGreaterEqual(result_dict["Accuracy"], 0.0)
             self.assertLessEqual(result_dict["Accuracy"], 100.0)

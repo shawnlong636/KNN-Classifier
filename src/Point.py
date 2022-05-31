@@ -5,7 +5,6 @@ log = logging.getLogger(__name__)
 
 class Point:
     def __init__(self, label: float, features):
-        self.id = uuid.uuid1()
         self.label = label
         self.features = features
     def __str__(self):

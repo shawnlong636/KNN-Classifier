@@ -196,7 +196,7 @@ class CLI:
         if validator_alg_choice == 1:
             model_validator = validator.RandomValidator()     
         elif validator_alg_choice == 2:
-            model_validator = validator.LeaveOneOutValidator(classifier = self.classifier, validation_data = self.data)
+            model_validator = validator.LeaveOneOutValidator(classifier = self.classifier)
         
         return model_validator
     

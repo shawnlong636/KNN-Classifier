@@ -1,5 +1,6 @@
 import logging
 import random
+from src import point
 from tqdm import tqdm
 from collections import Counter
 from abc import ABC
@@ -9,9 +10,8 @@ from src.point import Point
 log = logging.getLogger(__name__)
 
 class Validator(ABC):
-    def __init__(self, classifier: classifier.Classifier, validation_data):
+    def __init__(self, classifier: classifier.Classifier):
         self.classifier = classifier
-        self.data = validation_data
     def evaluate(self, classifier: classifier.Classifier, features):
         pass
 
@@ -26,17 +26,16 @@ class RandomValidator(Validator):
         return accuracy
 
 class LeaveOneOutValidator(Validator):
-    def __init__(self, classifier, validation_data):
+    def __init__(self, classifier):
         self.classifier = classifier
-        self.validation_data = validation_data
 
     def get_default_rate(self):
-        classes = list(map(lambda point: point.label, self.validation_data))
+        classes = list(map(lambda point: point.label, self.classifier.training_data))
         counter = Counter(classes)
 
         _ , cnt_most_common = counter.most_common(1)[0]
         point_count = len(classes)
-        return (float(cnt_most_common) / float(point_count)) * 100.00
+        return (float(cnt_most_common) / float(point_count)) * 100.0
 
     def evaluate(self, features):
         # Time Complexity: 
@@ -45,37 +44,28 @@ class LeaveOneOutValidator(Validator):
         #       - # Test the other point and record result: O(dn + klogn)
         # - Calculate the avg: O(1)
         #
-        # Total time complexity: O(dn^3 + kn^2 * log(n))
+        # Total time complexity: O(dn^2 + kn * log(n))
+        point_count = len(self.classifier.training_data)
 
-        point_count = len(self.validation_data)
-        accuracy_sum = 0.0
-        test_count = 0
-        self.classifier.setFeatures(features)
-
+        if not self.classifier.isTrained:
+            raise Exception("Model must be trained before evaluating")
         if len(features) == 0:
             return self.get_default_rate()
-
         if point_count <= 1:
             raise Exception("More than 1 point required to determine accuracy of classifier")
 
-        for exclude_index in tqdm(range(point_count), leave=False, colour="#FABE0E", desc="Testing Model"): # O(n)
-            correct_count = 0
+        orig_training_data = self.classifier.training_data
+        correct_count = 0
 
-            for include_index in range(point_count): # O(n)
-                if not include_index == exclude_index:
-                    actual_point = self.validation_data[include_index]
-                    classified_point = self.classifier.test(Point(label=None, features=actual_point.features)) # O(dn + klogn)
+        for test_idx in tqdm(range(point_count), leave=False, colour="#FABE0E", desc="Testing Model"): # O(n)
+            test_point = self.classifier.training_data[test_idx]
+            training_data = self.classifier.training_data[:test_idx] + self.classifier.training_data[test_idx+1:]
 
-                    if int(actual_point.label) == int(classified_point.label):
-                        correct_count += 1
-
-            current_test_accuracy = 100.00 * (float(correct_count) / float((point_count - 1)))
-            accuracy_sum += current_test_accuracy
-            test_count += 1
-
-        if test_count <= 0:
-            raise Exception("Unable to Calculate Accuracy due to having zero valid tests")
+            self.classifier.train(training_data, features)
+            
+            if int(self.classifier.test(test_point).label) == int(test_point.label):
+                correct_count += 1
         
-        total_accuracy = accuracy_sum / float(test_count)
-        # print(f"Features: {features} -> Accuracy: {round(100.0 * total_accuracy) / 100.0 }%")
-        return total_accuracy
+            self.classifier.train(orig_training_data, features)
+
+        return (float(correct_count) / float(point_count)) * 100.0

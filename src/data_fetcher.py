@@ -16,7 +16,7 @@ class Fetcher:
             print(f"Unable to load file list, reason: {error}")
             return None
 
-    def load_dataset(self, file_name):
+    def load_dataset(self, file_name, display_text=True):
         file_path = self.path + file_name
         points = []
         try:
@@ -35,8 +35,8 @@ class Fetcher:
                 
                 if len(points) == 0:
                     raise Exception("Data Formatting Error: Must contain at least one point (Min 1 Row)")
-
-                print("Read Successfully")
+                if display_text:
+                    print("Read Successfully")
                 return points
 
         except Exception as error:

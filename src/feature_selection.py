@@ -31,9 +31,8 @@ class ForwardSelection(SelectionAlgorithm):
         return sorted(list(possible_features))
 
     def search(self, validator: validator.Validator, num_features: int, display_text = True):
-        # Time Complexity: 
-        # 
-        print("\nSearching using Forward Selection\n")
+        if display_text:
+            print("\nSearching using Forward Selection\n")
         best_feature_set = []
         best_accuracy = 0.00
         try:
@@ -43,7 +42,7 @@ class ForwardSelection(SelectionAlgorithm):
         except Exception as error:
             if display_text:
                 print(f"Unable to complete feature search: {error}")
-            return
+                return
         all_children_worse = False
 
         while not all_children_worse:
@@ -55,7 +54,7 @@ class ForwardSelection(SelectionAlgorithm):
 
 
             choices = self.possible_choices(best_feature_set, max_features = num_features)
-            # print(choices)
+
             for choice in choices:
                 child_accuracy = 0.00
                 try:
